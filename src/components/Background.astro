@@ -1,0 +1,151 @@
+---
+import { CldImage } from "astro-cloudinary";
+import { getCollection } from "astro:content";
+const halloweenPics = await getCollection("halloweenPics");
+---
+
+<section class="sec h-[250vh] tablet:h-[150vh]">
+  <div
+    class="absolute z-40 gap-10 w-full flex justify-center items-center flex-col"
+  >
+    <h2 class="ghostText text-[5em] laptop:text-[7em] uppercase text-[#f00] cursor-default"></h2>
+    <ul class="flex flex-wrap gap-10 justify-center">
+      {
+        halloweenPics.map(({ data }) => {
+          return (
+            <li>
+              <a href={`/imagen?id=${data.public_id}`} >
+                <CldImage
+                  class="rounded-md poster"
+                  src={data.public_id}
+                  width={250}
+                  height={250}
+                  crop={{
+                    type: "fill",
+                    source: true,
+                  }}
+                />
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style is:global>
+  .sec {
+    position: relative;
+    background: #101010;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    align-items: center;
+    justify-content: space-evenly;
+    font-family: poppins, sans-serif;
+  }
+
+  .box {
+    position: relative;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.33em;
+    color: #222;
+    opacity: 0.4;
+  }
+
+  .box:nth-child(odd):before {
+    content: "• Happy Halloween •";
+  }
+  .box:nth-child(even):before {
+    content: "• Happy Hackathon •";
+  }
+
+  .animate {
+    color: #f25a02;
+    opacity: 0.7;
+  }
+
+  .poster {
+    transition:
+      box-shadow 0.1s,
+      transform 0.1s;
+  }
+
+  .poster:hover {
+    box-shadow: 0 0 50px rgba(0, 0, 0, 1);
+  }
+
+  .ghostText {
+    font-family: jollylodger;
+    display: flex;
+  }
+  .ghostText span {
+    transition: 1.5s;
+    text-shadow: 0 0 25px #f00;
+  }
+  .ghostText:hover span{
+    filter: blur(20px);
+    opacity: 0;
+    transform: scale(2) translateY(-50px);
+  }
+</style>
+
+<script>
+  const $poster = document.querySelectorAll(".poster");
+  const $ghostText = document.querySelector(".ghostText");
+  let text = 'Galery Horror'
+
+  text.split('').forEach((char, index) => {
+    let span = document.createElement('span');
+    span.textContent = char === ' ' ? '\u00A0\u00A0' : char;
+    span.style.transitionDelay = `${(index % 13) * 0.1}s`;
+    $ghostText.appendChild(span);
+  })
+
+  $poster.forEach((poster) => {
+    const height = poster.clientHeight;
+    const width = poster.clientWidth;
+
+    poster.addEventListener("mousemove", (event) => {
+      const { layerX, layerY } = event;
+      const yRotation = ((layerX - width / 2) / width) * 20;
+
+      const xRotation = ((layerY - height / 2) / height) * 20;
+
+      const string = `
+  perspective(500px)
+  scale(1.1)
+  rotateX(${xRotation}deg)
+  rotateY(${yRotation}deg)
+  `;
+      poster.style.transform = string;
+    });
+
+    poster.addEventListener("mouseout", () => {
+      const string = `
+  perspective(500px)
+  scale(1)
+  rotateX(0)
+  rotateY(0)
+  `;
+      poster.style.transform = string;
+    });
+  });
+
+  for (let i = 0; i < 300; i++) {
+    const $box = document.createElement("div");
+    $box.classList.add("box");
+    $box.style.filter = `hue-rotate(${i * 10}deg)`;
+    document.querySelector(".sec").appendChild($box);
+  }
+
+  function animateBox() {
+    const $boxes = document.querySelectorAll(".box");
+    let num = Math.floor(Math.random() * $boxes.length);
+    $boxes[num].classList.toggle("animate");
+  }
+  setInterval(animateBox, 1000);
+</script>

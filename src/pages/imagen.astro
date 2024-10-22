@@ -1,0 +1,160 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+import { getCldImageUrl } from "astro-cloudinary/helpers";
+
+const { searchParams } = Astro.url;
+const id = searchParams.get("id");
+if (id == null) Astro.redirect("/");
+const url = getCldImageUrl({ src: id });
+---
+
+<Layout title="Imagen Editor">
+  <main
+    data-id={id}
+    class="flex flex-col items-center justify-center text-center w-full h-screen gap-10 relative z-30"
+  >
+    <header class="flex justify-center items-center gap-10 flex-wrap">
+      <button
+        class="horrorButton flex items-center justify-between py-2 px-4"
+        data-topic="background">
+        Background Horror
+      </button>
+    </header>
+    <div
+      class="group rounded-xl hover:scale-105 hover:contrast-[110%] transition-all relative"
+    >
+      <img
+        src={url}
+        alt="image generate original"
+        class="img object-contain w-full h-[430px]"
+      />
+      <img
+        src={url}
+        alt="image generate for the effect blur"
+        class="imgBlur w-full h-[430px] blur-md opacity-0 group-hover:opacity-100 absolute inset-0 transition contrast-150 -z-10 object-contain"
+      />
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { getCldImageUrl } from "astro-cloudinary/helpers";
+  import { pollForProcessingImage } from "@cloudinary-util/util";
+
+
+  const $id = document.querySelector("main")?.getAttribute("data-id") ?? "";
+  const $image = document.querySelector(".img") as HTMLImageElement;
+  const $imgBlur = document.querySelector(".imgBlur") as HTMLImageElement;
+  const $button = document.querySelector(".horrorButton") as HTMLButtonElement;
+
+  const TOPICS = async () => {
+    const response = await fetch("./prompts/prompts.json");
+    const data = await response.json();
+    return data;
+  };
+
+  const generateRandomTopic = async (topic) => {
+    const data = await TOPICS();
+    const prompts = await data[topic];
+    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    return randomPrompt;
+  };
+
+  $button.addEventListener("click", async (e) => {
+    const $topic = $button.dataset.topic;
+    const topic = await generateRandomTopic($topic);
+
+    if (topic == null) return;
+    console.log(topic);
+    try {
+      const url = await getCldImageUrl({
+        src: $id,
+        replaceBackground: topic,
+      });
+
+      $image.style.opacity = ".3";
+      $imgBlur.style.opacity = ".3";
+      $image.style.filter = "blur(8px)";
+      if (await pollForProcessingImage({ src: url })) {
+        $image.src = url;
+        $imgBlur.src = url;
+      }
+      $image.onload = () => {
+        $image.style.filter = "blur(0px)";
+        $image.style.opacity = "1";
+      };
+
+      const formData = new FormData();
+      formData.append("file", url);
+      formData.append("upload_preset", "spooky-uploads");
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/omegatroydev/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+
+    } catch (error) {
+      console.log(error);
+    }
+  });
+</script>
+<style>
+  img {
+    max-width: 100%;
+    border-radius: 12px;
+    transition: opacity 0.3s ease;
+  }
+  button {
+    border: none;
+    text-align: center;
+    gap: 5px;
+    border-radius: 10em;
+    background: #7634b3;
+    box-shadow: 0px 10px 20px rgba(114, 2, 242, 0.4);
+    font-size: 20px;
+    color: #ffffff;
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  button:hover {
+    animation: shake3856 0.3s linear infinite both;
+  }
+
+  @keyframes shake3856 {
+    0% {
+      -webkit-transform: translate(0);
+      transform: translate(0);
+    }
+
+    20% {
+      -webkit-transform: translate(-2px, 2px);
+      transform: translate(-2px, 2px);
+    }
+
+    40% {
+      -webkit-transform: translate(-2px, -2px);
+      transform: translate(-2px, -2px);
+    }
+
+    60% {
+      -webkit-transform: translate(2px, 2px);
+      transform: translate(2px, 2px);
+    }
+
+    80% {
+      -webkit-transform: translate(2px, -2px);
+      transform: translate(2px, -2px);
+    }
+
+    100% {
+      -webkit-transform: translate(0);
+      transform: translate(0);
+    }
+  }
+</style>

@@ -1,0 +1,37 @@
+<nav class="flex justify-around items-center p-2 fixed top-0 w-full bg[rgba(0,0,0,0.5)] backdrop-blur-sm z-[250]">
+  <a href="/" class="mobile:text-2xl">Home</a>
+  <a href="https://cloudinary.com/" target="_blank">
+    <img src="/CloudinaryLogo.svg" alt="Cloudinary Logo" class="mobile:w-40 mr-4" />
+  </a>
+  <a href="https://www.twitch.tv/midudev" target="_blank" class="mobile:text-2xl">
+    MiduDev
+  </a>
+</nav>
+
+<style>
+  .animate-elastic{
+    top: -50%;
+    animation: elastic 3s 4s infinite both;
+  }
+  
+@keyframes elastic{
+ 0%, 100% {
+    transform: scaleZ(1);
+  }
+  30% {
+    transform: scale3d(.75, 1.25, 1);
+}
+40% {
+    transform: scale3d(1.25, .75, 1);
+}
+50% {
+    transform: scale3d(.85, 1.15, 1);
+}
+65% {
+    transform: scale3d(1.05, .95, 1);
+}
+75% {
+    transform: scale3d(.95, 1.05, 1);
+}
+}
+</style>

@@ -1,4 +1,7 @@
 ---
+import Ghost from '../components/Ghost.astro';
+import NavBar from '../components/NavBar.astro';
+import Background from '../components/Background.astro';
 interface Props {
 	title: string;
 }
@@ -12,39 +15,41 @@ const { title } = Astro.props;
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href="./vispera-de-todos-los-santos.png" />
 		<meta name="generator" content={Astro.generator} />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
 		<title>{title}</title>
+		
 	</head>
-	<body>
+	<body class="min-h-screen">
+		<NavBar />
+		<!-- <Ghost /> -->
 		<slot />
+		<img src="./spiderWeb.png" alt="Spider Web" class="absolute sombras right-0 top-[-5%] w-full spointer-events-none h-[35%] tablet:h-[46%]" />
+		<Background />
 	</body>
 </html>
+
 <style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
+	@font-face {
+		font-family: 'JollyLodger';
+		src: url('./font/JollyLodger-Regular.ttf');
+		font-weight: normal;
+		font-style: normal;
+		font-display: swap;
+		font-named-instance: 'Regular';
 	}
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
+  body{
+		position: relative;
+      margin: 0;
+      padding: 0;
+			min-height: 100vh;
+			padding-top: 30px;
+			background-image: radial-gradient(#223, #112);
+			color: #f0f0f0;
+			font-family: 'JollyLodger';
+  }
+	.sombras{
+		filter: drop-shadow(7px 0px 3px black);
 	}
 </style>
